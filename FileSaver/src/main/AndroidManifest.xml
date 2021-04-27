@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.fivesoft.filesaver">
+
+    <application>
+        <activity
+            android:name="com.fivesoft.filesaver.FileSaver$FileSaverActivity"
+            android:theme="@style/Theme.Transparent"/>
+    </application>
+
+</manifest>
