@@ -10,19 +10,19 @@ Implementation:
 Save file:
 
     FileSaver.from(this)
-                    .setFile("Hello world!".getBytes())
-                    .setName("test.txt")
-                    .setType("plain/text")
-                    .setListener((fileLocation, resCode) -> {
-                        if(resCode == OnResultsListener.OK){
-                            //File saved!
-                        } else if(resCode == OnResultsListener.CANCELED_BY_USER){
-                            //User canceled saving file.
-                        } else {
-                            //Error occured.
-                        }
-                    })
-                    .save();
+             .setFile("Hello world!".getBytes())
+             .setName("test.txt")
+             .setType("plain/text")
+             .setListener((fileLocation, resCode) -> {
+                 if(resCode == OnResultsListener.OK){
+                     //File saved!
+                 } else if(resCode == OnResultsListener.CANCELED_BY_USER){
+                     //User canceled saving file.
+                 } else {
+                     //Error occured.
+                 }
+             })
+             .save();
 
 ### License
 
