@@ -2,15 +2,21 @@ package com.fivesoft.filesaver;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
+import androidx.core.content.FileProvider;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.channels.FileChannel;
 
 
 @SuppressWarnings("unused")
@@ -161,33 +167,77 @@ public class FileSaver {
 
         private void writeFileContent(Activity activity, byte[] bytes, Uri uri) {
 
+
             if(bytes == null){
                 if(listener != null)
                     listener.onResults(uri, OnResultsListener.ERROR_OCCURRED);
                 return;
             }
+            try {
 
-            try{
-                ParcelFileDescriptor pfd =
-                        activity.getContentResolver().
-                                openFileDescriptor(uri, "w");
-
-                FileOutputStream fileOutputStream =
-                        new FileOutputStream(
-                                pfd.getFileDescriptor());
+                ParcelFileDescriptor pfd = activity.getContentResolver().openFileDescriptor(uri, "w");
+                FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
 
                 fileOutputStream.write(bytes);
-
+                fileOutputStream.flush();
                 fileOutputStream.close();
                 pfd.close();
                 if(listener != null)
-                    listener.onResults(uri, OnResultsListener.OK);
+                    listener.onResults(cacheFile(uri), OnResultsListener.OK);
             } catch (IOException e) {
                 e.printStackTrace();
                 if(listener != null)
-                    listener.onResults(uri, OnResultsListener.ERROR_OCCURRED);
+                    listener.onResults(cacheFile(uri), OnResultsListener.ERROR_OCCURRED);
+            }
+
+        }
+
+        private Uri cacheFile(Uri uri){
+            try {
+                InputStream in = getContentResolver().openInputStream(uri);
+
+                File cachedFile = new File(new File(getCacheDir(), "File_Saver"), getFileName(uri));
+
+                copyFile(new File(uri.getPath()), cachedFile);
+                return FileProvider.getUriForFile(this,  "com.fivesoft.filesaver.provider", cachedFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return uri;
             }
         }
+
+        public String getFileName(Uri uri) {
+            String result = null;
+            if (uri.getScheme().equals("content")) {
+                try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                    if (cursor != null && cursor.moveToFirst()) {
+                        result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    }
+                }
+            }
+            if (result == null) {
+                result = uri.getPath();
+                int cut = result.lastIndexOf('/');
+                if (cut != -1) {
+                    result = result.substring(cut + 1);
+                }
+            }
+            return result;
+        }
+
+        private void copyFile(File src, File dst) {
+            try {
+                FileChannel inChannel = new FileInputStream(src).getChannel();
+                FileChannel outChannel = new FileOutputStream(dst).getChannel();
+                inChannel.transferTo(0, inChannel.size(), outChannel);
+                inChannel.close();
+                if (outChannel != null)
+                    outChannel.close();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public interface OnResultsListener {
@@ -216,5 +266,4 @@ public class FileSaver {
 
         void onResults(Uri fileLocation, int resCode);
     }
-
 }

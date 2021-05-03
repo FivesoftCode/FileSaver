@@ -6,6 +6,17 @@
         <activity
             android:name="com.fivesoft.filesaver.FileSaver$FileSaverActivity"
             android:theme="@style/Theme.Transparent"/>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.fivesoft.filesaver.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
     </application>
 
 </manifest>
