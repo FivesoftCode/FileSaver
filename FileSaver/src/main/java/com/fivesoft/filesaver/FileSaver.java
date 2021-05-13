@@ -1,6 +1,7 @@
 package com.fivesoft.filesaver;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -137,7 +138,13 @@ public class FileSaver {
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType(type);
             intent.putExtra(Intent.EXTRA_TITLE, name);
-            startActivityForResult(intent, SAVE_REQUEST_CODE);
+            try {
+                startActivityForResult(intent, SAVE_REQUEST_CODE);
+            } catch (ActivityNotFoundException e){
+                e.printStackTrace();
+                if(listener != null)
+                    listener.onResults(null, OnResultsListener.ERROR_OCCURRED);
+            }
         }
 
         @Override
