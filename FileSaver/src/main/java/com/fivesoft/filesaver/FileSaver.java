@@ -190,61 +190,14 @@ public class FileSaver {
                 fileOutputStream.close();
                 pfd.close();
                 if(listener != null)
-                    listener.onResults(cacheFile(uri), OnResultsListener.OK);
+                    listener.onResults(uri, OnResultsListener.OK);
             } catch (IOException e) {
                 e.printStackTrace();
                 if(listener != null)
-                    listener.onResults(cacheFile(uri), OnResultsListener.ERROR_OCCURRED);
+                    listener.onResults(uri, OnResultsListener.ERROR_OCCURRED);
             }
 
         }
-
-        private Uri cacheFile(Uri uri){
-            try {
-                InputStream in = getContentResolver().openInputStream(uri);
-
-                File cachedFile = new File(new File(getCacheDir(), "File_Saver"), getFileName(uri));
-
-                copyFile(new File(uri.getPath()), cachedFile);
-                return FileProvider.getUriForFile(this,  "com.fivesoft.filesaver.provider", cachedFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return uri;
-            }
-        }
-
-        public String getFileName(Uri uri) {
-            String result = null;
-            if (uri.getScheme().equals("content")) {
-                try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-                    if (cursor != null && cursor.moveToFirst()) {
-                        result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                    }
-                }
-            }
-            if (result == null) {
-                result = uri.getPath();
-                int cut = result.lastIndexOf('/');
-                if (cut != -1) {
-                    result = result.substring(cut + 1);
-                }
-            }
-            return result;
-        }
-
-        private void copyFile(File src, File dst) {
-            try {
-                FileChannel inChannel = new FileInputStream(src).getChannel();
-                FileChannel outChannel = new FileOutputStream(dst).getChannel();
-                inChannel.transferTo(0, inChannel.size(), outChannel);
-                inChannel.close();
-                if (outChannel != null)
-                    outChannel.close();
-            } catch (IOException e){
-                e.printStackTrace();
-            }
-        }
-
     }
 
     public interface OnResultsListener {
