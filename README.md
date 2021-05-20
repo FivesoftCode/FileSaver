@@ -5,7 +5,7 @@ Save files easily. No permissions required.
 
 Implementation:
 
-    implementation 'com.github.FivesoftCode:FileSaver:1.0.0'
+    implementation 'com.github.FivesoftCode:FileSaver:1.0.6'
     
 Save file:
 
